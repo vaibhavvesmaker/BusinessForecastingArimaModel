@@ -1,0 +1,242 @@
+---
+title: "vv337_BF_HW"
+output: html_document
+date: "11-20-23"
+---
+
+
+
+```{r}
+# Business Forecasting HW9
+# Name - Vaibhav Rajesh Vesmaker
+# Email - vaibhav.vesmaker@rutgers.edu
+
+
+library(fpp)
+```
+
+
+
+```{r}
+library(fpp2)
+```
+
+
+
+```{r}
+library(forecast)
+```
+
+
+
+```{r}
+data(boston) # picking up the boston dataset
+boston
+```
+
+
+
+```{r}
+head(boston)
+```
+
+
+
+```{r}
+class(boston)
+```
+
+```{r}
+frequency(boston) # The cycle of this time series is 12 months in a year
+```
+
+
+```{r}
+summary(boston)
+```
+
+
+```{r}
+dim(boston) # [1] 35  2   i.e 35 rows and 2 columns
+```
+
+
+
+```{r}
+colnames(boston)  # [1] "nyase" "bse"
+```
+
+
+
+```{r}
+plot(boston)
+```
+
+
+
+```{r}
+nrow(boston) # 35 rows
+```
+
+
+
+```{r}
+ncol(boston) # 2 columns
+```
+
+
+
+```{r}
+bse_ts <- ts((boston[,"bse"]), frequency = 12, start = c(1967,1))
+bse_ts
+```
+
+
+
+```{r}
+class(bse_ts)
+```
+
+
+
+```{r}
+plot(bse_ts)
+```
+
+
+
+```{r}
+# From our output, we can see that there is randomness. Trend and seasonal component is not present in this time series.
+# there are no predictable patterns and we cannot be sure be sure where the peaks and troughs of the cycles are..
+# It looks like a white noise series
+
+# ndiffs: Number of differences required for a stationary series
+ndiffs(bse_ts) # how much differencing do we need to do to make it stationary
+```
+
+
+
+```{r}
+# to estimate the number of differences required to make a given time series stationary
+# the output for ndiffs(bse_ts) is 0. 
+# This means that there is no requirement for further differencing because
+# there is no seasonal component present in our time series and so it is a Stationary time series by default.
+
+
+tsdisplay(bse_ts) # it plots the original time series but it tells you what the ACF and PACF is
+```
+
+
+
+```{r}
+# For a stationary time series, the ACF will drop to zero relatively quickly..
+# In time series analysis, Autocorrelation Function (ACF) and the partial autocorrelation function (PACF) plots are essential in providing the model’s orders such as p for AR and q for MA to select the best model for forecasting.
+
+# The two blue dash lines represent the significant threshold levels. 
+# Anything that spikes over these two lines reveals the significant correlations.
+# When looking at ACF plot, we ignore the long spike at lag 0 (pointed by the blue arrow). For PACF, the line usually starts at 1.
+
+
+
+
+
+
+auto_fit <- auto.arima(bse_ts, trace=TRUE, stepwise = FALSE)
+```
+
+
+
+```{r}
+# Best model: ARIMA(1,0,0)            with non-zero mean 
+auto_fit
+```
+
+
+
+```{r}
+# Series: bse_ts 
+# ARIMA(p,d,q) 
+# According to auto ARIMA, the best model is ARIMA(1,0,0) (first-order autoregressive model) where,
+# p = 1, d = 0, q = 0
+
+# p is the number of autoregressive terms,
+# d is the number of nonseasonal differences needed for stationarity, and
+# q is the number of lagged forecast errors in the prediction equation.
+
+
+# Coefficients:
+#  ar1      mean
+# 0.7712  117.3200
+# s.e.  0.1009   19.9928
+
+# sigma^2 = 917.9:  log likelihood = -168.47
+# AIC=342.94   AICc=343.72   BIC=347.61
+
+attributes(auto_fit) # [1] "forecast_ARIMA" "ARIMA"          "Arima" 
+```
+
+
+
+```{r}
+checkresiduals(auto_fit)
+```
+
+
+```{r}
+# Forecasts from ARIMA(1,0,0) with non-zero mean
+plot(forecast(auto_fit,h=5,level=c(99.5)))
+```
+
+
+```{r}
+#Residual Analysis
+Acf(auto_fit$residuals)
+```
+
+
+
+```{r}
+Box.test(residuals(auto_fit), lag=20, type="Ljung")
+```
+
+
+
+```{r}
+# Box-Ljung test
+
+# data:  residuals(auto_fit)
+# X-squared = 24.665, df = 20, p-value = 0.2145
+
+# X-squared (Q) is 24.665 and p-value is 0.2145. If p-value is greater than 0.05 then we accept the null hypothesis and the data values are independent.
+# p-value is the probability value for a test
+
+plot.ts(residuals(auto_fit))
+```
+
+
+
+```{r}
+hist(auto_fit$residuals) # we can see that there is an outlier (greater than 100).. and rest of the data is equally distributed..
+```
+
+
+
+```{r}
+# Diagnostic Plots for Time-Series Fits
+tsdiag(auto_fit)
+```
+
+
+```{r}
+# we can see from the plot of p values for Ljung-Bpx statistic, that the p-values are above the significant threshold
+# limit, i.e above 0.05 and so we can accept the null hypothesis.
+
+
+
+
+
+
+
+
+```
+
