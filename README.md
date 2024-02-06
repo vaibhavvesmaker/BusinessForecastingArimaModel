@@ -2,9 +2,10 @@
 Arima Model 
 Perform ARIMA on your time series. 
 
-1. Explain the output
+1. Explained the output.
 
-2. Run Residual Analysis
+2. Performed Residual Analysis.
 
-3. Perform and Plot the forecast for the next five periods
-4. Show the accuracy of your ARIMA model
+3. Executed and Plot the forecast for the next five periods.
+4. 
+5. Described the accuracy of your ARIMA model.
