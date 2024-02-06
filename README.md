@@ -7,5 +7,5 @@ Perform ARIMA on your time series.
 2. Performed Residual Analysis.
 
 3. Executed and Plot the forecast for the next five periods.
-4. 
-5. Described the accuracy of your ARIMA model.
+ 
+4. Described the accuracy of your ARIMA model.
